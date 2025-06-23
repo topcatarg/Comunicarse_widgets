@@ -15,7 +15,6 @@ if (!defined('ABSPATH')) {
 // Definir constantes del plugin
 define('COMUNICARSE_HUBS_VERSION', '1.0.0');
 define('COMUNICARSE_HUBS_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('COMUNICARSE_HUBS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
 /**
  * Clase principal del plugin
@@ -26,6 +25,7 @@ class ComunicarSeHubsPlugin
     {
         add_action('init', array($this, 'init'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('wp_ajax_save_hubs_config', array($this, 'save_hubs_config'));
         add_action('wp_ajax_get_hubs_config', array($this, 'get_hubs_config'));
@@ -37,9 +37,6 @@ class ComunicarSeHubsPlugin
     {
         // Cargar traducciones si las hay
         load_plugin_textdomain('comunicarse-hubs', false, dirname(plugin_basename(__FILE__)) . '/languages');
-        
-        // Crear tabla si no existe
-        $this->create_table();
     }
 
     public function enqueue_scripts() 
@@ -50,17 +47,25 @@ class ComunicarSeHubsPlugin
             array(),
             COMUNICARSE_HUBS_VERSION
         );
+    }
 
+    public function enqueue_admin_scripts($hook) 
+    {
+        if ($hook !== 'settings_page_comunicarse-hubs') {
+            return;
+        }
+
+        wp_enqueue_script('jquery');
+        
         wp_enqueue_script(
-            'comunicarse-hubs-script',
-            COMUNICARSE_HUBS_PLUGIN_URL . 'assets/script.js',
+            'comunicarse-hubs-admin',
+            COMUNICARSE_HUBS_PLUGIN_URL . 'assets/admin.js',
             array('jquery'),
             COMUNICARSE_HUBS_VERSION,
             true
         );
 
-        // Localizar script para AJAX
-        wp_localize_script('comunicarse-hubs-script', 'hubsAjax', array(
+        wp_localize_script('comunicarse-hubs-admin', 'hubsAjax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('hubs_nonce')
         ));
@@ -82,26 +87,29 @@ class ComunicarSeHubsPlugin
         ?>
         <div class="wrap">
             <h1>Configuración Hubs ComunicarSe</h1>
-            <div id="hubs-admin-container">
-                <div class="hubs-preview">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                     <h3>Vista Previa</h3>
                     <div id="hubs-preview-container">
-                        <?php echo $this->render_hubs(); ?>
+                        <?php echo $this->render_hubs(array('show_title' => false)); ?>
                     </div>
                 </div>
 
-                <div class="hubs-configuration">
+                <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                     <h3>Configuración</h3>
                     <form id="hubs-config-form">
                         <?php wp_nonce_field('hubs_nonce', 'hubs_nonce'); ?>
                         <div id="hubs-config-fields"></div>
-                        <button type="submit" class="button button-primary">Guardar Configuración</button>
-                        <button type="button" class="button" id="reset-hubs">Restaurar Predeterminado</button>
+                        <p>
+                            <button type="submit" class="button button-primary">Guardar Configuración</button>
+                            <button type="button" class="button" id="reset-hubs">Restaurar Predeterminado</button>
+                        </p>
                     </form>
                 </div>
             </div>
 
-            <div class="hubs-usage">
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
                 <h3>Cómo usar</h3>
                 <p><strong>Shortcode:</strong> <code>[comunicarse_hubs]</code></p>
                 <p><strong>PHP:</strong> <code>&lt;?php echo do_shortcode('[comunicarse_hubs]'); ?&gt;</code></p>
@@ -110,18 +118,6 @@ class ComunicarSeHubsPlugin
         </div>
 
         <style>
-        #hubs-admin-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .hubs-preview, .hubs-configuration {
-            background: white;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
         .hub-config-item {
             border: 1px solid #ddd;
             padding: 15px;
@@ -136,110 +132,15 @@ class ComunicarSeHubsPlugin
             width: 100%;
             margin: 5px 0;
             padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .hubs-usage {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
+        .hub-config-item label {
+            display: block;
+            font-weight: bold;
+            margin-top: 10px;
         }
         </style>
-
-        <script>
-        jQuery(document).ready(function($) {
-            loadHubsConfiguration();
-            
-            $('#hubs-config-form').on('submit', function(e) {
-                e.preventDefault();
-                saveHubsConfiguration();
-            });
-
-            $('#reset-hubs').on('click', function() {
-                if (confirm('¿Restaurar configuración predeterminada?')) {
-                    resetHubsConfiguration();
-                }
-            });
-
-            function loadHubsConfiguration() {
-                $.post(hubsAjax.ajax_url, {
-                    action: 'get_hubs_config',
-                    nonce: hubsAjax.nonce
-                }, function(response) {
-                    if (response.success) {
-                        renderConfigFields(response.data);
-                    }
-                });
-            }
-
-            function saveHubsConfiguration() {
-                const hubs = [];
-                $('.hub-config-item').each(function() {
-                    const hubId = $(this).data('hub-id');
-                    hubs.push({
-                        id: hubId,
-                        title: $(this).find('.hub-title').val(),
-                        description: $(this).find('.hub-description').val(),
-                        url: $(this).find('.hub-url').val(),
-                        icon: $(this).find('.hub-icon').val(),
-                        image: $(this).find('.hub-image').val()
-                    });
-                });
-
-                $.post(hubsAjax.ajax_url, {
-                    action: 'save_hubs_config',
-                    nonce: hubsAjax.nonce,
-                    hubs: JSON.stringify(hubs)
-                }, function(response) {
-                    if (response.success) {
-                        alert('Configuración guardada exitosamente');
-                        location.reload();
-                    } else {
-                        alert('Error al guardar la configuración');
-                    }
-                });
-            }
-
-            function resetHubsConfiguration() {
-                $.post(hubsAjax.ajax_url, {
-                    action: 'save_hubs_config',
-                    nonce: hubsAjax.nonce,
-                    reset: true
-                }, function(response) {
-                    if (response.success) {
-                        location.reload();
-                    }
-                });
-            }
-
-            function renderConfigFields(hubs) {
-                const container = $('#hubs-config-fields');
-                container.empty();
-
-                hubs.forEach(function(hub) {
-                    const configItem = $(`
-                        <div class="hub-config-item" data-hub-id="${hub.id}">
-                            <h4>Hub ${hub.id}: ${hub.title}</h4>
-                            <label>Título:</label>
-                            <input type="text" class="hub-title" value="${hub.title}">
-                            
-                            <label>Descripción:</label>
-                            <textarea class="hub-description">${hub.description}</textarea>
-                            
-                            <label>URL:</label>
-                            <input type="text" class="hub-url" value="${hub.url}">
-                            
-                            <label>Icono (emoji):</label>
-                            <input type="text" class="hub-icon" value="${hub.icon}">
-                            
-                            <label>Imagen URL:</label>
-                            <input type="text" class="hub-image" value="${hub.image || ''}">
-                        </div>
-                    `);
-                    container.append(configItem);
-                });
-            }
-        });
-        </script>
         <?php
     }
 
@@ -368,9 +269,7 @@ class ComunicarSeHubsPlugin
                         </div>
                         <div class="hub-info">
                             <h3 class="hub-title"><?php echo esc_html($hub['title']); ?></h3>
-                            <p class="hub-description"><?php echo esc_html($hub['description']); ?></p>
                         </div>
-                        <div class="hub-arrow">→</div>
                     </div>
                 </a>
                 <?php endforeach; ?>
@@ -383,12 +282,6 @@ class ComunicarSeHubsPlugin
     public function register_widget() 
     {
         register_widget('ComunicarSe_Hubs_Widget');
-    }
-
-    private function create_table() 
-    {
-        // No necesitamos tabla para este plugin simple
-        // Los datos se guardan en wp_options
     }
 }
 
@@ -451,18 +344,60 @@ new ComunicarSeHubsPlugin();
 register_activation_hook(__FILE__, 'comunicarse_hubs_activate');
 function comunicarse_hubs_activate() 
 {
-    // Crear configuración predeterminada si no existe
+    // Forzar la creación de la configuración predeterminada
     if (!get_option('comunicarse_hubs_config')) {
         $plugin = new ComunicarSeHubsPlugin();
-        // La configuración se creará automáticamente cuando se solicite
+        $default_hubs = array(
+            array(
+                'id' => 1,
+                'title' => 'Gobierno Corporativo',
+                'description' => 'Prácticas de transparencia, ética empresarial y estructuras de gobierno',
+                'icon' => '🏛️',
+                'url' => '/categoria/gobierno-corporativo',
+                'image' => ''
+            ),
+            array(
+                'id' => 2,
+                'title' => 'Cambio Climático',
+                'description' => 'Estrategias de mitigación, adaptación y descarbonización empresarial',
+                'icon' => '🌍',
+                'url' => '/categoria/cambio-climatico',
+                'image' => ''
+            ),
+            array(
+                'id' => 3,
+                'title' => 'Economía Circular',
+                'description' => 'Modelos de negocio sostenibles y gestión eficiente de recursos',
+                'icon' => '♻️',
+                'url' => '/categoria/economia-circular',
+                'image' => ''
+            ),
+            array(
+                'id' => 4,
+                'title' => 'Diversidad e Inclusión',
+                'description' => 'Equidad de género, inclusión laboral y derechos humanos',
+                'icon' => '🤝',
+                'url' => '/categoria/diversidad-inclusion',
+                'image' => ''
+            ),
+            array(
+                'id' => 5,
+                'title' => 'Tecnología e Innovación',
+                'description' => 'Innovación sostenible, tecnologías verdes y transformación digital',
+                'icon' => '💡',
+                'url' => '/categoria/tecnologia-innovacion',
+                'image' => ''
+            ),
+            array(
+                'id' => 6,
+                'title' => 'Impacto Social',
+                'description' => 'Inversión de impacto, negocios inclusivos y desarrollo comunitario',
+                'icon' => '❤️',
+                'url' => '/categoria/impacto-social',
+                'image' => ''
+            )
+        );
+        update_option('comunicarse_hubs_config', $default_hubs);
     }
-}
-
-// Hook para desactivación del plugin
-register_deactivation_hook(__FILE__, 'comunicarse_hubs_deactivate');
-function comunicarse_hubs_deactivate() 
-{
-    // Limpiar cache si es necesario
-    wp_cache_flush();
 }
 ?>
