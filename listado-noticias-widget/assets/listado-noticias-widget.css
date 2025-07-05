@@ -1,0 +1,545 @@
+/**
+ * Estilos para el Widget Listado de Noticias
+ * Replica el formato del sitio original de Drupal
+ */
+
+/* ==========================================================================
+   CONTENEDOR PRINCIPAL
+   ========================================================================== */
+
+.listado-noticias-container {
+    margin: 20px 0;
+    clear: both;
+}
+
+.listado-noticias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ==========================================================================
+   ITEM DE NOTICIA
+   ========================================================================== */
+
+.noticia-item {
+    background: #f5f5f5;
+    border-radius: 0;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.noticia-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.noticia-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+}
+
+.noticia-link:hover,
+.noticia-link:focus {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ==========================================================================
+   IMAGEN
+   ========================================================================== */
+
+.noticia-imagen {
+    position: relative;
+    width: 100%;
+    height: 230px;
+    overflow: hidden;
+    background: #ddd;
+}
+
+.noticia-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    display: block;
+}
+
+.noticia-item:hover .noticia-thumbnail {
+    transform: scale(1.05);
+}
+
+.sin-imagen {
+    width: 100%;
+    height: 100%;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 48px;
+    transition: background 0.3s ease;
+}
+
+.noticia-item:hover .sin-imagen {
+    background: #d5d5d5;
+    color: #777;
+}
+
+/* Overlay de categoría en la imagen */
+.noticia-categoria-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 115, 170, 0.9);
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 2px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.noticia-item:hover .noticia-categoria-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   CONTENIDO
+   ========================================================================== */
+
+.noticia-contenido {
+    padding: 15px;
+    background: #f5f5f5;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.noticia-titulo {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #333;
+    text-align: left;
+    transition: color 0.2s ease;
+    flex-grow: 1;
+}
+
+.noticia-link:hover .noticia-titulo,
+.noticia-link:focus .noticia-titulo {
+    color: #0073aa;
+}
+
+.noticia-extracto {
+    margin: 10px 0 0 0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+.noticia-meta {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.noticia-categoria-text {
+    font-style: italic;
+}
+
+/* ==========================================================================
+   ESTADOS ESPECIALES
+   ========================================================================== */
+
+.noticia-item-1 {
+    /* Primer item - puede tener estilos especiales */
+}
+
+.noticia-item:nth-child(even) {
+    /* Items pares - para alternar colores si es necesario */
+}
+
+.noticia-item:nth-child(odd) {
+    /* Items impares */
+}
+
+/* ==========================================================================
+   FOOTER DEL WIDGET
+   ========================================================================== */
+
+.listado-noticias-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn-ver-mas {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-ver-mas:hover {
+    background: #005a87;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-ver-mas:active {
+    transform: translateY(0);
+}
+
+.btn-ver-mas.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-ver-mas.loading::after {
+    content: " ⟳";
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   MENSAJE DE NO POSTS
+   ========================================================================== */
+
+.no-posts-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px 20px;
+    background: #f9f9f9;
+    border: 1px dashed #ddd;
+    border-radius: 4px;
+}
+
+.no-posts-message p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* ==========================================================================
+   ANIMACIONES DE CARGA
+   ========================================================================== */
+
+.noticia-item-ajax {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efecto de skeleton loading */
+.noticia-item.loading {
+    pointer-events: none;
+}
+
+.noticia-item.loading .noticia-imagen {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+.noticia-item.loading .noticia-titulo {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    color: transparent;
+}
+
+@keyframes loading {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+/* Tablets */
+@media (max-width: 768px) {
+    .listado-noticias-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    
+    .noticia-imagen {
+        height: 200px;
+    }
+    
+    .noticia-titulo {
+        font-size: 15px;
+    }
+    
+    .noticia-contenido {
+        padding: 12px;
+    }
+    
+    .sin-imagen {
+        font-size: 36px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+    .listado-noticias-container {
+        margin: 15px 0;
+    }
+    
+    .listado-noticias-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .noticia-imagen {
+        height: 180px;
+    }
+    
+    .noticia-titulo {
+        font-size: 14px;
+    }
+    
+    .noticia-extracto {
+        font-size: 13px;
+    }
+    
+    .noticia-meta {
+        font-size: 11px;
+    }
+    
+    .btn-ver-mas {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 320px) {
+    .noticia-imagen {
+        height: 160px;
+    }
+    
+    .noticia-contenido {
+        padding: 10px;
+    }
+    
+    .noticia-titulo {
+        font-size: 13px;
+        line-height: 1.3;
+    }
+}
+
+/* ==========================================================================
+   MODO OSCURO (si el tema lo soporta)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    .noticia-item {
+        background: #2a2a2a;
+        box-shadow: 0 1px 3px rgba(255,255,255,0.1);
+    }
+    
+    .noticia-contenido {
+        background: #2a2a2a;
+    }
+    
+    .noticia-titulo {
+        color: #e0e0e0;
+    }
+    
+    .noticia-link:hover .noticia-titulo {
+        color: #4dabf7;
+    }
+    
+    .noticia-extracto {
+        color: #b0b0b0;
+    }
+    
+    .noticia-meta {
+        color: #888;
+    }
+    
+    .sin-imagen {
+        background: #3a3a3a;
+        color: #666;
+    }
+    
+    .no-posts-message {
+        background: #2a2a2a;
+        color: #b0b0b0;
+        border-color: #444;
+    }
+}
+
+/* ==========================================================================
+   COMPATIBILIDAD CON TEMAS POPULARES
+   ========================================================================== */
+
+/* Astra Theme */
+.ast-separate-container .listado-noticias-container {
+    margin: 30px 0;
+}
+
+/* Divi Theme */
+.et_pb_section .listado-noticias-container {
+    max-width: 100%;
+}
+
+/* Avada Theme */
+.fusion-body .listado-noticias-container {
+    clear: both;
+}
+
+/* GeneratePress */
+.generate-columns-container .listado-noticias-container {
+    width: 100%;
+}
+
+/* ==========================================================================
+   UTILIDADES ADICIONALES
+   ========================================================================== */
+
+/* Centrar widget */
+.listado-noticias-container.centrado {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Modo compacto */
+.listado-noticias-container.compacto .noticia-imagen {
+    height: 150px;
+}
+
+.listado-noticias-container.compacto .noticia-contenido {
+    padding: 10px;
+}
+
+.listado-noticias-container.compacto .noticia-titulo {
+    font-size: 14px;
+}
+
+/* Modo expandido */
+.listado-noticias-container.expandido .noticia-imagen {
+    height: 280px;
+}
+
+.listado-noticias-container.expandido .noticia-contenido {
+    padding: 20px;
+}
+
+.listado-noticias-container.expandido .noticia-titulo {
+    font-size: 18px;
+}
+
+/* ==========================================================================
+   ACCESIBILIDAD
+   ========================================================================== */
+
+/* Focus para navegación por teclado */
+.noticia-link:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.btn-ver-mas:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+/* Reducir movimiento para usuarios que lo prefieran */
+@media (prefers-reduced-motion: reduce) {
+    .noticia-item,
+    .noticia-thumbnail,
+    .sin-imagen,
+    .noticia-categoria-overlay,
+    .noticia-titulo,
+    .btn-ver-mas {
+        transition: none;
+        animation: none;
+    }
+    
+    .noticia-item:hover .noticia-thumbnail {
+        transform: none;
+    }
+    
+    .noticia-item:hover {
+        transform: none;
+    }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+    .listado-noticias-container {
+        break-inside: avoid;
+    }
+    
+    .noticia-item {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+        margin-bottom: 20px;
+    }
+    
+    .noticia-imagen {
+        height: auto;
+    }
+    
+    .btn-ver-mas,
+    .noticia-categoria-overlay {
+        display: none;
+    }
+    
+    .noticia-link:hover .noticia-titulo {
+        color: inherit;
+    }
+}
