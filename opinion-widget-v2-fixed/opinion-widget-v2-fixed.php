@@ -3,7 +3,7 @@
  * Plugin Name: Opinion Widget V2 Fixed
  * Plugin URI: https://comunicarseweb.com
  * Description: Widget V2 para posts tipo "opinion" - Versión corregida y simplificada
- * Version: 2.1.0
+ * Version: 2.2.0
  * Author: Gonzalo Bianchi
  * License: GPL v2 or later
  */
@@ -48,6 +48,7 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
         // Obtener opiniones
         $posts_count = !empty($instance['posts_count']) ? intval($instance['posts_count']) : 2;
         $category_filter = !empty($instance['category_filter']) ? $instance['category_filter'] : '';
+        $show_more_url = !empty($instance['show_more_url']) ? $instance['show_more_url'] : '';
 
         $query_args = array(
             'post_type' => 'opinion',
@@ -84,14 +85,7 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
             <?php foreach ($opinion_posts as $post): ?>
                 <article class="opinion-item" data-id="<?php echo $post->ID; ?>">
                     
-                    <!-- Título -->
-                    <h3 class="opinion-title">
-                        <a href="<?php echo get_permalink($post->ID); ?>">
-                            <?php echo get_the_title($post->ID); ?>
-                        </a>
-                    </h3>
-
-                    <!-- Autor info -->
+                    <!-- Autor info - Primera fila -->
                     <div class="opinion-author-box">
                         <?php 
                         // Obtener metadatos
@@ -130,6 +124,14 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
 
                 </article>
             <?php endforeach; ?>
+            
+            <?php if (!empty($show_more_url)): ?>
+                <div class="opinion-more-button">
+                    <a href="<?php echo esc_url($show_more_url); ?>" class="btn-ver-mas">
+                        Ver más opiniones
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
 
         <style>
@@ -156,23 +158,6 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
             margin-bottom: 0;
         }
 
-        .opinion-widget-v2-fixed .opinion-title {
-            margin: 0 0 1rem 0;
-            font-size: 1.1rem;
-            line-height: 1.3;
-        }
-
-        .opinion-widget-v2-fixed .opinion-title a {
-            color: #333;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        .opinion-widget-v2-fixed .opinion-title a:hover {
-            color: #0073aa;
-        }
-
         .opinion-widget-v2-fixed .opinion-author-box {
             background: rgba(255,255,255,0.7);
             border-radius: 8px;
@@ -181,29 +166,39 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
         }
 
         .opinion-widget-v2-fixed .author-info {
-            display: flex;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 80px 1fr;
             gap: 1rem;
+            align-items: center;
             margin-bottom: 1rem;
         }
 
+        .opinion-widget-v2-fixed .photo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .opinion-widget-v2-fixed .photo-container .author-photo {
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 3px solid #fff;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
         }
 
         .opinion-widget-v2-fixed .author-text {
-            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .opinion-widget-v2-fixed .author-name {
             font-weight: 600;
             color: #333;
             margin-bottom: 2px;
+            font-size: 1.1rem;
         }
 
         .opinion-widget-v2-fixed .author-position {
@@ -239,6 +234,32 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
             background: rgba(0,115,170,0.1);
         }
 
+        .opinion-widget-v2-fixed .opinion-more-button {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .opinion-widget-v2-fixed .btn-ver-mas {
+            display: inline-block;
+            background: #0073aa;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .opinion-widget-v2-fixed .btn-ver-mas:hover {
+            background: #005a87;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,115,170,0.3);
+        }
+
         .opinion-widget-v2-fixed.layout-horizontal {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -247,6 +268,10 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
 
         .opinion-widget-v2-fixed.layout-horizontal .opinion-item {
             margin-bottom: 0;
+        }
+
+        .opinion-widget-v2-fixed.layout-horizontal .opinion-more-button {
+            grid-column: 1 / -1;
         }
 
         .opinion-widget-v2-fixed .no-opinions {
@@ -260,8 +285,13 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
 
         @media (max-width: 768px) {
             .opinion-widget-v2-fixed .author-info {
-                flex-direction: column;
-                text-align: center;
+                grid-template-columns: 60px 1fr;
+                gap: 0.8rem;
+            }
+            
+            .opinion-widget-v2-fixed .photo-container .author-photo {
+                width: 50px;
+                height: 50px;
             }
             
             .opinion-widget-v2-fixed.layout-horizontal {
@@ -282,6 +312,7 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
         $posts_count = !empty($instance['posts_count']) ? $instance['posts_count'] : 2;
         $category_filter = !empty($instance['category_filter']) ? $instance['category_filter'] : '';
         $layout = !empty($instance['layout']) ? $instance['layout'] : 'vertical';
+        $show_more_url = !empty($instance['show_more_url']) ? $instance['show_more_url'] : '';
         ?>
         
         <p>
@@ -318,6 +349,17 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
             </select>
         </p>
 
+        <p>
+            <label for="<?php echo $this->get_field_id('show_more_url'); ?>">
+                <strong>URL "Ver más":</strong>
+            </label>
+            <input class="widefat" id="<?php echo $this->get_field_id('show_more_url'); ?>" 
+                   name="<?php echo $this->get_field_name('show_more_url'); ?>" type="url" 
+                   value="<?php echo esc_url($show_more_url); ?>" 
+                   placeholder="https://ejemplo.com/opiniones">
+            <small>URL que enlaza a la lista completa de opiniones</small>
+        </p>
+
         <?php if (taxonomy_exists('categoria_opinion')): ?>
         <p>
             <label for="<?php echo $this->get_field_id('category_filter'); ?>">
@@ -345,9 +387,10 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
         <div style="background: #e7f3ff; padding: 10px; border-radius: 4px; margin-top: 15px;">
             <strong>📋 Info V2 Fixed:</strong><br>
             • Solo posts tipo "opinion"<br>
-            • Sin fecha ni extracto<br>
-            • Diseño limpio y responsive<br>
-            • Lee metadatos automáticamente
+            • Sin título de publicación<br>
+            • Primera fila: imagen y datos del autor<br>
+            • Botón "Ver más" configurable<br>
+            • Diseño limpio y responsive
         </div>
         <?php
     }
@@ -361,6 +404,7 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
         $instance['posts_count'] = (!empty($new_instance['posts_count'])) ? intval($new_instance['posts_count']) : 2;
         $instance['category_filter'] = (!empty($new_instance['category_filter'])) ? strip_tags($new_instance['category_filter']) : '';
         $instance['layout'] = (!empty($new_instance['layout'])) ? strip_tags($new_instance['layout']) : 'vertical';
+        $instance['show_more_url'] = (!empty($new_instance['show_more_url'])) ? esc_url_raw($new_instance['show_more_url']) : '';
         
         return $instance;
     }
@@ -372,19 +416,21 @@ function register_opinion_widget_v2_fixed() {
 }
 add_action('widgets_init', 'register_opinion_widget_v2_fixed');
 
-// Shortcode
+// Shortcode actualizado
 function opinion_v2_fixed_shortcode($atts) {
     $atts = shortcode_atts(array(
         'count' => 2,
         'category' => '',
-        'layout' => 'vertical'
+        'layout' => 'vertical',
+        'show_more_url' => ''
     ), $atts);
 
     $widget = new Opinion_Widget_V2_Fixed();
     $instance = array(
         'posts_count' => intval($atts['count']),
         'category_filter' => $atts['category'],
-        'layout' => $atts['layout']
+        'layout' => $atts['layout'],
+        'show_more_url' => $atts['show_more_url']
     );
 
     ob_start();
