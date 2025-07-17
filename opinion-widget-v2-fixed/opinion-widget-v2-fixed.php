@@ -127,7 +127,7 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
             
             <?php if (!empty($show_more_url)): ?>
                 <div class="opinion-more-button">
-                    <a href="<?php echo esc_url($show_more_url); ?>" class="btn-ver-mas">
+                    <a href="<?php echo esc_url($show_more_url); ?>" >
                         Ver más opiniones
                     </a>
                 </div>
@@ -234,31 +234,43 @@ class Opinion_Widget_V2_Fixed extends WP_Widget {
             background: rgba(0,115,170,0.1);
         }
 
-        .opinion-widget-v2-fixed .opinion-more-button {
-            text-align: center;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-        }
+.opinion-widget-v2-fixed .opinion-more-button {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
 
-        .opinion-widget-v2-fixed .btn-ver-mas {
-            display: inline-block;
-            background: #0073aa;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
+.opinion-widget-v2-fixed .opinion-more-button a {
+    display: inline-block;
+    background: #0073aa;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
 
-        .opinion-widget-v2-fixed .btn-ver-mas:hover {
-            background: #005a87;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,115,170,0.3);
-        }
+.opinion-widget-v2-fixed .opinion-more-button a:hover {
+    background: #005a87;
+    color: white;
+    text-decoration: none;
+}
+
+.opinion-widget-v2-fixed .opinion-more-button a:focus {
+    background: #004577;
+    outline: 2px solid #87ceeb;
+    outline-offset: 2px;
+}
+
+.opinion-widget-v2-fixed .opinion-more-button a:active {
+    background: #004577;
+}
+
+
 
         .opinion-widget-v2-fixed.layout-horizontal {
             display: grid;

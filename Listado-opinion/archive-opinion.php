@@ -1,7 +1,7 @@
 <?php
 /**
- * Archive template for Opinion posts
- * Listado de todas las opiniones con diseño de cards
+ * Archive template for Opinion posts - Versión Simplificada
+ * Listado de todas las opiniones con diseño de cards simple
  * Author: Gonzalo Bianchi
  */
 
@@ -46,38 +46,30 @@ get_header(); ?>
                     }
                 ?>
                     
-                    <article class="opinion-card">
+                    <article class="opinion-card-simple">
                         <div class="opinion-card-content">
                             
-                            <!-- Título de la opinión -->
-                            <h2 class="opinion-card-title">
-                                <a href="<?php the_permalink(); ?>">
-                                    <?php the_title(); ?>
-                                </a>
-                            </h2>
-                            
-                            <!-- Información del autor -->
-                            <div class="opinion-card-author">
-                                <?php if ($author_photo_id): 
-                                    $photo = wp_get_attachment_image($author_photo_id, 'thumbnail', false, array('class' => 'author-card-photo'));
-                                    if ($photo): ?>
-                                    <div class="author-card-photo-container">
+                            <!-- Foto del autor -->
+                            <?php if ($author_photo_id): 
+                                $photo = wp_get_attachment_image($author_photo_id, 'thumbnail', false, array('class' => 'author-photo-simple'));
+                                if ($photo): ?>
+                                    <div class="author-photo-container">
                                         <?php echo $photo; ?>
                                     </div>
-                                    <?php endif;
-                                endif; ?>
-                                
-                                <div class="author-card-info">
-                                    <div class="author-card-name"><?php echo esc_html($author_name); ?></div>
-                                    <?php if ($author_title): ?>
-                                        <div class="author-card-title"><?php echo esc_html($author_title); ?></div>
-                                    <?php endif; ?>
-                                </div>
+                                <?php endif;
+                            endif; ?>
+                            
+                            <!-- Nombre del autor -->
+                            <div class="author-name-simple">
+                                <?php echo esc_html($author_name); ?>
+                                <?php if ($author_title): ?>
+                                    <span class="author-title-simple"><?php echo esc_html($author_title); ?></span>
+                                <?php endif; ?>
                             </div>
                             
-                            <!-- Cita de opinión -->
+                            <!-- Comentario destacado -->
                             <?php if ($opinion_quote): ?>
-                                <div class="opinion-card-quote">
+                                <div class="opinion-quote-simple">
                                     <blockquote>"<?php echo esc_html($opinion_quote); ?>"</blockquote>
                                 </div>
                             <?php endif; ?>
@@ -85,7 +77,7 @@ get_header(); ?>
                         </div>
                         
                         <!-- Enlace completo en toda la card -->
-                        <a href="<?php the_permalink(); ?>" class="opinion-card-overlay-link" aria-label="Leer opinión: <?php the_title(); ?>"></a>
+                        <a href="<?php the_permalink(); ?>" class="opinion-card-link-overlay" aria-label="Leer opinión completa"></a>
                     </article>
                     
                 <?php endwhile; ?>
@@ -94,19 +86,20 @@ get_header(); ?>
             <!-- Paginación -->
             <div class="opinion-pagination">
                 <?php
-                $big = 999999999; // Need an unlikely integer
-                
-                echo paginate_links(array(
-                    'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
-                    'format' => '?paged=%#%',
-                    'current' => max(1, get_query_var('paged')),
-                    'total' => $opinion_query->max_num_pages,
-                    'prev_text' => '<i class="fas fa-chevron-left"></i> Anterior',
-                    'next_text' => 'Siguiente <i class="fas fa-chevron-right"></i>',
-                    'type' => 'list',
-                    'end_size' => 3,
-                    'mid_size' => 1
-                ));
+                if ($opinion_query->max_num_pages > 1) {
+                    echo paginate_links(array(
+                        'base' => str_replace(999999999, '%#%', esc_url(get_pagenum_link(999999999))),
+                        'format' => '?paged=%#%',
+                        'current' => max(1, get_query_var('paged')),
+                        'total' => $opinion_query->max_num_pages,
+                        'prev_text' => '← Anterior',
+                        'next_text' => 'Siguiente →',
+                        'type' => 'plain',
+                        'end_size' => 2,
+                        'mid_size' => 1,
+                        'add_args' => false
+                    ));
+                }
                 ?>
             </div>
             
@@ -187,32 +180,92 @@ get_header(); ?>
     margin-bottom: 40px;
 }
 
-/* Cards individuales */
-.opinion-card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+/* Cards simplificadas */
+.opinion-card-simple {
+    background: #fff;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     overflow: hidden;
     transition: all 0.3s ease;
-    border-left: 4px solid #0073aa;
+    border: 1px solid #e9ecef;
     position: relative;
     cursor: pointer;
+    padding: 20px;
+    text-align: center;
 }
 
-.opinion-card:hover {
-    transform: translateY(-5px);
+.opinion-card-simple:hover {
+    transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 .opinion-card-content {
-    padding: 25px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    align-items: center;
+    gap: 15px;
 }
 
-/* Enlace overlay para toda la card */
-.opinion-card-overlay-link {
+/* Foto del autor */
+.author-photo-container {
+    margin-bottom: 5px;
+}
+
+.author-photo-simple {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 3px solid #fff !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+}
+
+/* Nombre del autor */
+.author-name-simple {
+    color: #333;
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.author-title-simple {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 400;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+/* Comentario destacado */
+.opinion-quote-simple {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.opinion-quote-simple blockquote {
+    margin: 0;
+    font-style: italic;
+    color: #0073aa;
+    font-size: 1rem;
+    line-height: 1.4;
+    text-align: center;
+    position: relative;
+}
+
+.opinion-quote-simple blockquote:before {
+    content: '"';
+    font-size: 3rem;
+    color: #0073aa;
+    opacity: 0.3;
+    position: absolute;
+    top: -10px;
+    left: -20px;
+}
+
+/* Enlace overlay */
+.opinion-card-link-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -222,116 +275,49 @@ get_header(); ?>
     z-index: 2;
 }
 
-/* Título de la card */
-.opinion-card-title {
-    margin: 0 0 20px 0;
-    font-size: 1.3rem;
-    line-height: 1.3;
-    min-height: 60px;
-}
-
-.opinion-card-title a {
-    color: #333;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-    position: relative;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.opinion-card:hover .opinion-card-title a {
-    color: #0073aa;
-}
-
-/* Autor en la card */
-.opinion-card-author {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.author-card-photo-container .author-card-photo {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.author-card-info {
-    flex: 1;
-}
-
-.author-card-name {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 2px;
-    font-size: 0.95rem;
-}
-
-.author-card-title {
-    font-size: 0.85rem;
-    color: #666;
-    font-style: italic;
-}
-
-/* Cita en la card */
-.opinion-card-quote {
-    flex: 1;
-}
-
-.opinion-card-quote blockquote {
-    margin: 0;
-    font-style: italic;
-    color: #0073aa;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    padding: 15px;
-    background: rgba(0,115,170,0.05);
-    border-left: 3px solid #0073aa;
-    border-radius: 6px;
-}
-
-/* Paginación */
+/* Paginación SIMPLIFICADA - sin hover */
 .opinion-pagination {
     margin-top: 50px;
     text-align: center;
 }
 
-.opinion-pagination .page-numbers {
-    display: inline-flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: 5px;
+.opinion-pagination a,
+.opinion-pagination span {
+    display: inline-block !important;
+    padding: 12px 18px !important;
+    margin: 0 3px !important;
+    background: #f8f9fa !important;
+    color: #333 !important;
+    text-decoration: none !important;
+    border-radius: 6px !important;
+    border: 1px solid #e9ecef !important;
+    font-weight: 500 !important;
 }
 
-.opinion-pagination .page-numbers li {
-    margin: 0;
+/* Página actual */
+.opinion-pagination .current {
+    background: #0073aa !important;
+    color: white !important;
+    border-color: #0073aa !important;
 }
 
-.opinion-pagination .page-numbers a,
-.opinion-pagination .page-numbers span {
-    display: inline-block;
-    padding: 10px 15px;
-    background: #f8f9fa;
-    color: #333;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    border: 1px solid #e9ecef;
+/* SIN HOVER - solo focus para accesibilidad */
+.opinion-pagination a:focus {
+    outline: 2px solid #0073aa !important;
+    outline-offset: 2px !important;
 }
 
-.opinion-pagination .page-numbers a:hover,
-.opinion-pagination .page-numbers .current {
-    background: #0073aa;
-    color: white;
-    border-color: #0073aa;
+/* Elementos deshabilitados */
+.opinion-pagination .dots {
+    background: transparent !important;
+    border: none !important;
+    color: #999 !important;
+}
+
+/* Navegación anterior/siguiente */
+.opinion-pagination .prev,
+.opinion-pagination .next {
+    font-weight: 600 !important;
 }
 
 /* No results */
@@ -367,7 +353,7 @@ get_header(); ?>
     background: #005a87;
 }
 
-/* Sidebar styles - manteniendo compatibilidad */
+/* Sidebar styles */
 .opinion-sidebar-area-debug .mh-sidebar {
     width: 100% !important;
     float: none !important;
@@ -433,24 +419,13 @@ get_header(); ?>
         font-size: 2.5rem;
     }
     
-    .opinion-card-content {
-        padding: 20px;
+    .opinion-card-simple {
+        padding: 15px;
     }
     
-    .opinion-card-title {
-        min-height: auto;
-        margin-bottom: 15px;
-    }
-    
-    .opinion-card-meta {
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
-    }
-    
-    .opinion-card-link {
-        text-align: center;
-        justify-content: center;
+    .author-photo-simple {
+        width: 60px !important;
+        height: 60px !important;
     }
 }
 
@@ -459,14 +434,8 @@ get_header(); ?>
         font-size: 2rem;
     }
     
-    .opinion-card-content {
+    .opinion-card-simple {
         padding: 15px;
-    }
-    
-    .opinion-card-author {
-        flex-direction: column;
-        text-align: center;
-        gap: 8px;
     }
 }
 </style>
