@@ -1,6 +1,7 @@
 <?php
 /**
- * Template para archivo de categorías de hubs
+ * Template para archivo de categorías de hubs - Versión con Grid
+ * Replica el diseño del sitio original de Drupal con grid de 3 columnas
  * Archivo: archive-hubs-category.php
  * Ubicación: wp-content/themes/mh-magazine/archive-hubs-category.php
  */
@@ -11,1255 +12,812 @@ get_header();
 $current_category = get_queried_object();
 $category_slug = $current_category->slug;
 
-// Función para obtener configuración de publicidad por categoría
+// Función para obtener configuración universal (todos usan el mismo color verde)
 function get_category_config($category_slug) {
+    // Color verde universal para todos los hubs
+    $color_primary = '#2ecc71';
+    $color_secondary = '#27ae60';
+    
     $configs = array(
-        'hub-category-cop-cambio-climatico' => array(
-            'color_primary' => '#2ecc71',
-            'color_secondary' => '#27ae60',
-            'icon' => '🌍',
-            'gradient' => 'linear-gradient(135deg, #2ecc71 0%, #27ae60 50%, #16a085 100%)',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/cop-banner.jpg',
-            'ad_link' => 'https://ejemplo.com/cop-cambio-climatico',
-            'ad_alt' => 'Publicidad COP Cambio Climático'
-        ),
         'hub-category-ddhh-y-empresa' => array(
-            'color_primary' => '#e74c3c',
-            'color_secondary' => '#c0392b',
-            'icon' => '⚖️',
-            'gradient' => 'linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #a93226 100%)',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/ddhh-banner.jpg',
-            'ad_link' => 'https://ejemplo.com/ddhh-empresa',
+            'title' => 'DD.HH. y Empresa',
+            'popup_titulo' => 'Sobre DD.HH. y Empresa',
+            'popup_contenido' => 'Este hub está dedicado a explorar la intersección entre los derechos humanos y el mundo empresarial. Aquí encontrarás análisis, casos de estudio y reflexiones sobre cómo las empresas pueden contribuir al respeto y promoción de los derechos humanos en sus operaciones.',
+            'ad_image' => get_template_directory_uri() . '/assets/ads/logo-sancorseguros.jpg',
             'ad_alt' => 'Publicidad DD.HH. y Empresa'
         ),
-        'hub-category-movilidad-sostenible' => array(
-            'color_primary' => '#3498db',
-            'color_secondary' => '#2980b9',
-            'icon' => '🚗',
-            'gradient' => 'linear-gradient(135deg, #3498db 0%, #2980b9 50%, #1f618d 100%)',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/movilidad-banner.jpg',
-            'ad_link' => 'https://ejemplo.com/movilidad-sostenible',
-            'ad_alt' => 'Publicidad Movilidad Sostenible'
+        'hub-category-cop-cambio-climatico' => array(
+            'title' => 'COP y Cambio Climático',
+            'popup_titulo' => 'Sobre COP y Cambio Climático',
+            'popup_contenido' => 'Seguimiento y análisis de las Conferencias de las Partes (COP) sobre cambio climático y su impacto en políticas empresariales y sostenibilidad global.',
+            'ad_image' => get_template_directory_uri() . '/assets/ads/cop-clima-banner.jpg',
+            'ad_alt' => 'Publicidad COP y Cambio Climático'
         ),
         'hub-category-economia-regenerativa' => array(
-            'color_primary' => '#9b59b6',
-            'color_secondary' => '#8e44ad',
-            'icon' => '♻️',
-            'gradient' => 'linear-gradient(135deg, #9b59b6 0%, #8e44ad 50%, #7d3c98 100%)',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/economia-banner.jpg',
-            'ad_link' => 'https://ejemplo.com/economia-regenerativa',
+            'title' => 'Economía Regenerativa',
+            'popup_titulo' => 'Sobre Economía Regenerativa',
+            'popup_contenido' => 'Exploramos modelos económicos que van más allá de la sostenibilidad para crear un impacto positivo neto en el planeta y la sociedad.',
+            'ad_image' => get_template_directory_uri() . '/assets/ads/economia-regenerativa-banner.jpg',
             'ad_alt' => 'Publicidad Economía Regenerativa'
-        ),
-        'hub-category-negocios-inclusivos-y-sociales' => array(
-            'color_primary' => '#f39c12',
-            'color_secondary' => '#e67e22',
-            'icon' => '🤝',
-            'gradient' => 'linear-gradient(135deg, #f39c12 0%, #e67e22 50%, #d35400 100%)',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/negocios-banner.jpg',
-            'ad_link' => 'https://ejemplo.com/negocios-inclusivos',
-            'ad_alt' => 'Publicidad Negocios Inclusivos'
-        ),
-        'hub-category-packaging-sustentable' => array(
-            'color_primary' => '#1abc9c',
-            'color_secondary' => '#16a085',
-            'icon' => '📦',
-            'gradient' => 'linear-gradient(135deg, #1abc9c 0%, #16a085 50%, #138d75 100%)',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/packaging-banner.jpg',
-            'ad_link' => 'https://ejemplo.com/packaging-sustentable',
-            'ad_alt' => 'Publicidad Packaging Sustentable'
         )
     );
     
-    // Configuración por defecto
-    $default_config = array(
-        'color_primary' => '#667eea',
-        'color_secondary' => '#764ba2',
-        'icon' => '🏢',
-        'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'ad_image' => get_template_directory_uri() . '/assets/ads/default-banner.jpg',
-        'ad_link' => 'https://ejemplo.com/publicidad-general',
-        'ad_alt' => 'Publicidad General'
-    );
+    // Obtener configuración específica o usar valores por defecto
+    $specific_config = isset($configs[$category_slug]) ? $configs[$category_slug] : array();
     
-    return isset($configs[$category_slug]) ? $configs[$category_slug] : $default_config;
+    // Configuración final universal con fallbacks
+    return array(
+        'title' => isset($specific_config['title']) ? $specific_config['title'] : $current_category->name,
+        'color_primary' => $color_primary,
+        'color_secondary' => $color_secondary,
+        'icon' => '🏢',
+        'gradient' => 'linear-gradient(135deg, ' . $color_primary . ' 0%, ' . $color_secondary . ' 100%)',
+        'ad_image' => isset($specific_config['ad_image']) ? $specific_config['ad_image'] : get_template_directory_uri() . '/assets/ads/default-banner.jpg',
+        'ad_alt' => isset($specific_config['ad_alt']) ? $specific_config['ad_alt'] : 'Publicidad Hub',
+        'popup_titulo' => isset($specific_config['popup_titulo']) ? $specific_config['popup_titulo'] : 'Sobre este contenido',
+        'popup_contenido' => isset($specific_config['popup_contenido']) ? $specific_config['popup_contenido'] : '"Con el apoyo de" es utilizado para describir contenido editorial independiente que ComunicaRSE produce en asociación con empresas y organizaciones que tienen un interés estratégico en potenciar la divulgación de algún tema de la agenda de la sustentabilidad coincidente con nuestra línea editorial.<br><br>La empresa u organización cuyo logo aparece en el contenido puede tener algún rol en sugerir temas e ideas a los cuales darles cobertura, pero tanto la producción periodística como la decisión de aprobación editorial final corren por exclusiva cuenta de los periodistas y editores de ComunicaRSE.'
+    );
 }
 
 // Obtener configuración para esta categoría
 $config = get_category_config($category_slug);
 ?>
 
-<div class="mh-wrapper hub-category-wrapper">
-    <div class="mh-main-content">
-        <main class="mh-content">
+<div class="hub-category-page-wrapper">
+    
+    <!-- Título principal verde como en el sitio original -->
+    <div class="hub-category-title-section">
+        <div class="container">
+            <h1 class="hub-category-main-title" style="color: <?php echo $config['color_primary']; ?>;">
+                <?php echo esc_html($config['title']); ?>
+            </h1>
+        </div>
+    </div>
+
+    <!-- Layout principal -->
+    <div class="container">
+        <div class="hub-category-content-wrapper">
             
-            <!-- Header dinámico de la categoría -->
-            <header class="hub-category-header" style="background: <?php echo $config['gradient']; ?>;">
-                <div class="category-hero">
-                    <div class="category-icon"><?php echo $config['icon']; ?></div>
-                    <h1 class="category-title">
-                        <span class="category-label">Hubs de</span>
-                        <?php echo esc_html($current_category->name); ?>
-                    </h1>
-                    
-                    <?php if ($current_category->description): ?>
-                        <p class="category-description">
-                            <?php echo esc_html($current_category->description); ?>
-                        </p>
-                    <?php endif; ?>
-                    
-                    <div class="category-stats">
-                        <div class="stat-item">
-                            <span class="stat-number"><?php echo $current_category->count; ?></span>
-                            <span class="stat-label">Publicaciones</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number"><?php echo date('Y'); ?></span>
-                            <span class="stat-label">Actualizado</span>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Breadcrumb -->
-            <div class="hub-breadcrumb">
-                <nav aria-label="breadcrumb">
-                    <a href="<?php echo home_url(); ?>">Inicio</a>
-                    <span class="separator">›</span>
-                    <a href="<?php echo get_hubs_archive_url(); ?>">Hubs</a>
-                    <span class="separator">›</span>
-                    <span class="current"><?php echo esc_html($current_category->name); ?></span>
-                </nav>
-            </div>
-
-            <!-- Filtros y herramientas -->
-            <div class="hub-tools">
-                <div class="tools-left">
-                    <div class="results-info">
-                        <span class="results-count">
-                            <?php
-                            global $wp_query;
-                            echo $wp_query->found_posts;
-                            ?> resultados
-                        </span>
-                    </div>
-                </div>
+            <!-- Columna izquierda: "Con el apoyo de" y publicidad -->
+            <div class="hub-left-column">
                 
-                <div class="tools-right">
-                    <div class="sort-dropdown">
-                        <select id="hub-sort" onchange="sortHubs(this.value)">
-                            <option value="date-desc">Más recientes</option>
-                            <option value="date-asc">Más antiguos</option>
-                            <option value="title-asc">A-Z</option>
-                            <option value="views-desc">Más leídos</option>
-                        </select>
-                    </div>
+                <!-- Sección "Con el apoyo de" -->
+                <div class="hub-sponsor-section">
+                    <h3 class="sponsor-title">Con el apoyo de</h3>
                     
-                    <div class="view-toggle">
-                        <button class="view-btn active" data-view="grid" title="Vista de grilla" style="color: <?php echo $config['color_primary']; ?>;">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/>
-                            </svg>
-                        </button>
-                        <button class="view-btn" data-view="list" title="Vista de lista" style="color: <?php echo $config['color_primary']; ?>;">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Publicidad específica de la categoría -->
-            <div class="category-advertisement">
-                <div class="ad-container">
-                    <span class="ad-label">Publicidad</span>
-                    <!-- Simulación de banner publicitario -->
-                    <div class="ad-banner-placeholder" style="background: linear-gradient(45deg, <?php echo $config['color_primary']; ?>20, <?php echo $config['color_secondary']; ?>20);">
-                        <div class="ad-content">
-                            <div class="ad-icon"><?php echo $config['icon']; ?></div>
-                            <h3>Publicidad especializada</h3>
-                            <p>Espacio publicitario para <?php echo esc_html($current_category->name); ?></p>
-                            <small>Banner 728x90 o 320x100 (responsive)</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lista de hubs -->
-            <div class="hubs-container grid-view" id="hubs-container">
-                <?php if (have_posts()) : ?>
-                    
-                    <?php 
-                    $post_count = 0;
-                    while (have_posts()) : the_post(); 
-                        $post_count++;
-                    ?>
-                        <article class="hub-card" data-date="<?php echo get_the_date('Y-m-d'); ?>" data-title="<?php echo esc_attr(get_the_title()); ?>">
-                            
-                            <!-- Imagen destacada -->
-                            <?php if (has_post_thumbnail()) : ?>
-                                <div class="hub-image">
-                                    <a href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail('large', array('class' => 'hub-thumb')); ?>
-                                    </a>
-                                    
-                                    <!-- Badge de categoría -->
-                                    <div class="hub-badge" style="background: <?php echo $config['color_primary']; ?>;">
-                                        <?php echo $config['icon']; ?>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                            
-                            <!-- Contenido -->
-                            <div class="hub-content">
-                                
-                                <!-- Volanta -->
-                                <?php if (has_hub_volanta()) : ?>
-                                    <div class="hub-volanta" style="color: <?php echo $config['color_primary']; ?>;">
-                                        <?php the_hub_volanta(); ?>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <!-- Título -->
-                                <h2 class="hub-title">
-                                    <a href="<?php the_permalink(); ?>">
-                                        <?php the_title(); ?>
-                                    </a>
-                                </h2>
-                                
-                                <!-- Excerpt -->
-                                <?php if (has_excerpt()) : ?>
-                                    <div class="hub-excerpt">
-                                        <?php the_excerpt(); ?>
-                                    </div>
-                                <?php else : ?>
-                                    <div class="hub-excerpt">
-                                        <?php echo wp_trim_words(get_the_content(), 20, '...'); ?>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <!-- Meta información -->
-                                <div class="hub-meta">
-                                    <div class="meta-row">
-                                        <span class="hub-author">
-                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="<?php echo $config['color_primary']; ?>">
-                                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                                            </svg>
-                                            <a href="<?php echo get_author_posts_url(get_the_author_meta('ID')); ?>">
-                                                <?php the_author(); ?>
-                                            </a>
-                                        </span>
-                                        
-                                        <span class="hub-date">
-                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="<?php echo $config['color_primary']; ?>">
-                                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                                            </svg>
-                                            <?php echo get_the_date('j M, Y'); ?>
-                                        </span>
-                                    </div>
-                                    
-                                    <!-- Tags -->
-                                    <?php $hub_tags = get_hub_post_tags(); ?>
-                                    <?php if ($hub_tags && !is_wp_error($hub_tags)) : ?>
-                                        <div class="hub-tags">
-                                            <?php foreach (array_slice($hub_tags, 0, 3) as $tag) : ?>
-                                                <a href="<?php echo get_hub_tag_archive_url($tag->slug); ?>" 
-                                                   class="tag-link" 
-                                                   style="background: <?php echo $config['color_primary']; ?>20; color: <?php echo $config['color_primary']; ?>;">
-                                                    #<?php echo esc_html($tag->name); ?>
-                                                </a>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                                
-                                <!-- Botón leer más -->
-                                <div class="hub-read-more">
-                                    <a href="<?php the_permalink(); ?>" 
-                                       class="read-more-btn" 
-                                       style="background: <?php echo $config['gradient']; ?>;">
-                                        Leer artículo
-                                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                                            <path d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                                
-                            </div>
-                        </article>
-
+                    <!-- Imagen publicitaria -->
+                    <div class="sponsor-image-container">
                         <?php 
-                        // Insertar publicidad cada 6 posts
-                        if ($post_count % 6 == 0 && $post_count < $wp_query->post_count) : 
+                        // Verificar si existe la imagen específica
+                        $image_path = str_replace(get_template_directory_uri(), get_template_directory(), $config['ad_image']);
+                        if (file_exists($image_path)) : 
                         ?>
-                            <div class="inline-ad">
-                                <div class="ad-container small">
-                                    <span class="ad-label">Publicidad</span>
-                                    <div class="ad-banner-placeholder small" style="background: <?php echo $config['color_primary']; ?>10;">
-                                        <div class="ad-content">
-                                            <small>Banner 300x250</small>
-                                            <p><?php echo esc_html($current_category->name); ?></p>
-                                        </div>
-                                    </div>
+                            <!-- Imagen real -->
+                            <img src="<?php echo esc_url($config['ad_image']); ?>" 
+                                 alt="<?php echo esc_attr($config['ad_alt']); ?>" 
+                                 class="sponsor-ad-image" />
+                        <?php else : ?>
+                            <!-- Placeholder cuando no hay imagen -->
+                            <div class="sponsor-ad-placeholder" style="background: linear-gradient(45deg, <?php echo $config['color_primary']; ?>20, <?php echo $config['color_secondary']; ?>20);">
+                                <div class="ad-content">
+                                    <div class="ad-icon"><?php echo $config['icon']; ?></div>
+                                    <h4>Publicidad <?php echo esc_html($config['title']); ?></h4>
+                                    <p>Espacio publicitario vertical<br>300x250 px</p>
+                                    <small>Imagen: <?php echo basename($config['ad_image']); ?></small>
                                 </div>
                             </div>
                         <?php endif; ?>
-
-                    <?php endwhile; ?>
-                    
-                <?php else : ?>
-                    <div class="no-hubs-found">
-                        <div class="no-content-icon"><?php echo $config['icon']; ?></div>
-                        <h3>No hay contenido disponible</h3>
-                        <p>Aún no se han publicado hubs en esta categoría. ¡Mantente atento a las próximas actualizaciones!</p>
-                        <a href="<?php echo get_hubs_archive_url(); ?>" 
-                           class="btn-primary" 
-                           style="background: <?php echo $config['gradient']; ?>;">
-                            Ver todos los hubs
-                        </a>
                     </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Paginación -->
-            <?php if ($wp_query->max_num_pages > 1) : ?>
-                <div class="hubs-pagination">
-                    <?php
-                    the_posts_pagination(array(
-                        'mid_size' => 2,
-                        'prev_text' => '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg> Anterior',
-                        'next_text' => 'Siguiente <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>',
-                        'before_page_number' => '<span class="screen-reader-text">Página </span>',
-                    ));
-                    ?>
+                    
+                    <!-- Link "Sobre este contenido" con popup -->
+                    <div class="hub-sobre-contenido-link">
+                        <a href="#" class="sobre-contenido-trigger">Sobre este contenido</a>
+                        
+                        <!-- Popup overlay -->
+                        <div class="popup-overlay" style="display: none;">
+                            <div class="popup-contenido">
+                                <span class="popup-cerrar">&times;</span>
+                                <h3><?php echo esc_html($config['popup_titulo']); ?></h3>
+                                <div class="popup-texto">
+                                    <?php echo wp_kses_post($config['popup_contenido']); ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            <?php endif; ?>
-            
-        </main>
-    </div>
-
-    <!-- Sidebar -->
-    <?php if (is_active_sidebar('hub-sidebar') || true) : ?>
-        <aside class="mh-sidebar hub-sidebar">
-            
-            <!-- Widget de navegación de categorías -->
-            <div class="widget hub-categories-widget">
-                <h3 class="widget-title">Categorías de Hubs</h3>
-                <ul class="hub-categories-list">
-                    <?php
-                    $all_categories = get_hub_categories(array('hide_empty' => true));
-                    foreach ($all_categories as $cat) :
-                        $cat_config = get_category_config($cat->slug);
-                        $is_current = ($cat->term_id === $current_category->term_id);
-                    ?>
-                        <li class="<?php echo $is_current ? 'current-category' : ''; ?>">
-                            <a href="<?php echo get_hub_category_archive_url($cat->slug); ?>" 
-                               style="<?php if ($is_current) echo 'background: ' . $cat_config['color_primary'] . '; color: white;'; ?>">
-                                <span class="cat-icon"><?php echo $cat_config['icon']; ?></span>
-                                <span class="cat-name"><?php echo esc_html($cat->name); ?></span>
-                                <span class="cat-count"><?php echo $cat->count; ?></span>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
+                
             </div>
 
-            <!-- Widget de hubs recientes de esta categoría -->
-            <div class="widget recent-hubs-widget">
-                <h3 class="widget-title">Últimos en <?php echo esc_html($current_category->name); ?></h3>
-                <?php
-                $recent_hubs = get_hubs_by_category($category_slug, array(
-                    'posts_per_page' => 5,
-                    'orderby' => 'date',
-                    'order' => 'DESC'
-                ));
-                
-                if ($recent_hubs) :
-                ?>
-                    <ul class="recent-hubs-list">
-                        <?php foreach ($recent_hubs as $hub) : ?>
-                            <li class="recent-hub-item">
-                                <?php if (has_post_thumbnail($hub->ID)) : ?>
-                                    <div class="recent-hub-thumb">
-                                        <a href="<?php echo get_permalink($hub->ID); ?>">
-                                            <?php echo get_the_post_thumbnail($hub->ID, 'thumbnail'); ?>
+                <!-- Columna central: Lista de publicaciones -->
+                <div class="hub-center-column">
+
+                    <?php if (have_posts()) : ?>
+                        
+                        <!-- Primera publicación destacada -->
+                        <?php 
+                        $first_post_shown = false;
+                        while (have_posts()) : the_post(); 
+                            if (!$first_post_shown) :
+                                $first_post_shown = true;
+                        ?>
+                            <article class="hub-featured-first-post">
+                                <?php if (has_post_thumbnail()) : ?>
+                                    <div class="hub-first-image">
+                                        <a href="<?php the_permalink(); ?>">
+                                            <?php the_post_thumbnail('large', array('class' => 'hub-first-thumb')); ?>
                                         </a>
                                     </div>
                                 <?php endif; ?>
                                 
-                                <div class="recent-hub-content">
-                                    <h4 class="recent-hub-title">
-                                        <a href="<?php echo get_permalink($hub->ID); ?>">
-                                            <?php echo esc_html($hub->post_title); ?>
-                                        </a>
-                                    </h4>
-                                    <span class="recent-hub-date">
-                                        <?php echo get_the_date('j M', $hub->ID); ?>
-                                    </span>
+                                <div class="hub-first-content">
+                                    <h2 class="hub-first-title">
+                                        <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                                    </h2>
+                                    
+                                    <?php if (has_excerpt() || get_the_content()) : ?>
+                                        <div class="hub-first-excerpt">
+                                            <?php 
+                                            if (has_excerpt()) {
+                                                the_excerpt();
+                                            } else {
+                                                echo wp_trim_words(get_the_content(), 50, '...');
+                                            }
+                                            ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </div>
+                            </article>
+                        <?php 
+                            break; // Solo mostrar el primer post aquí
+                            endif;
+                        endwhile; 
+                        
+                        // Resetear para mostrar el resto
+                        rewind_posts();
+                        $post_counter = 0;
+                        ?>
 
-            <!-- Widget de estadísticas -->
-            <div class="widget hub-stats-widget">
-                <h3 class="widget-title">En números</h3>
-                <?php $stats = get_hub_stats(); ?>
-                <div class="stats-grid">
-                    <div class="stat-item" style="border-left: 4px solid <?php echo $config['color_primary']; ?>;">
-                        <span class="stat-number" style="color: <?php echo $config['color_primary']; ?>;">
-                            <?php echo $current_category->count; ?>
-                        </span>
-                        <span class="stat-label">En esta categoría</span>
-                    </div>
-                    <div class="stat-item" style="border-left: 4px solid <?php echo $config['color_secondary']; ?>;">
-                        <span class="stat-number" style="color: <?php echo $config['color_secondary']; ?>;">
-                            <?php echo $stats['total_hubs']; ?>
-                        </span>
-                        <span class="stat-label">Total de hubs</span>
-                    </div>
-                    <div class="stat-item" style="border-left: 4px solid #95a5a6;">
-                        <span class="stat-number" style="color: #95a5a6;">
-                            <?php echo $stats['total_categories']; ?>
-                        </span>
-                        <span class="stat-label">Categorías</span>
-                    </div>
+                        <!-- Grid de publicaciones restantes -->
+                        <div class="hub-grid-container">
+                            <?php while (have_posts()) : the_post(); 
+                                $post_counter++;
+                                // Saltarse el primer post ya mostrado
+                                if ($post_counter === 1) continue;
+                            ?>
+                                <article class="hub-grid-item">
+                                    <?php if (has_post_thumbnail()) : ?>
+                                        <div class="hub-grid-image">
+                                            <a href="<?php the_permalink(); ?>">
+                                                <?php the_post_thumbnail('medium', array('class' => 'hub-grid-thumb')); ?>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <div class="hub-grid-content">
+                                        <h3 class="hub-grid-title">
+                                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                                        </h3>
+                                    </div>
+                                    
+                                    <!-- Enlace overlay completo -->
+                                    <a href="<?php the_permalink(); ?>" class="hub-grid-link-overlay" aria-label="Leer artículo completo"></a>
+                                </article>
+                            <?php endwhile; ?>
+                        </div>
+
+                        <!-- Paginación -->
+                        <?php if ($wp_query->max_num_pages > 1) : ?>
+                            <div class="hubs-pagination">
+                                <?php
+                                the_posts_pagination(array(
+                                    'mid_size' => 2,
+                                    'prev_text' => '← Anterior',
+                                    'next_text' => 'Siguiente →',
+                                    'before_page_number' => '<span class="screen-reader-text">Página </span>',
+                                ));
+                                ?>
+                            </div>
+                        <?php endif; ?>
+                        
+                    <?php else : ?>
+                        <div class="no-hubs-found">
+                            <h3>No hay publicaciones disponibles</h3>
+                            <p>Aún no hay contenido publicado en esta categoría de hub.</p>
+                        </div>
+                    <?php endif; ?>
+                    
                 </div>
-            </div>
 
-        </aside>
-    <?php endif; ?>
+                <!-- Columna derecha: Solo Sidebar del tema -->
+                <div class="hub-right-column">
+                    <?php get_sidebar(); ?>
+                </div>
+        </div>
+    </div>
 </div>
 
 <style>
-/* Estilos para el template de categorías de hubs */
-.hub-category-wrapper {
-    display: flex;
-    gap: 2rem;
+/* CSS para el template con grid de categorías de hubs */
+
+.hub-category-page-wrapper {
+    max-width: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Container principal */
+.container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 20px;
 }
 
-.mh-main-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.hub-sidebar {
-    flex: 0 0 300px;
-}
-
-/* Header de categoría */
-.hub-category-header {
-    color: white;
-    padding: 3rem 0;
-    margin-bottom: 2rem;
-    border-radius: 15px;
-    position: relative;
-    overflow: hidden;
-}
-
-.hub-category-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a"><stop offset="20%" stop-color="%23fff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23fff" stop-opacity="0"/></radialGradient></defs><circle fill="url(%23a)" cx="50" cy="10" r="10"/></svg>') repeat;
-    opacity: 0.1;
-}
-
-.category-hero {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    position: relative;
-    z-index: 2;
-}
-
-.category-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
-
-.category-title {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: 800;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.category-label {
-    display: block;
-    font-size: 1rem;
-    font-weight: 400;
-    opacity: 0.9;
-    margin-bottom: 0.5rem;
-}
-
-.category-description {
-    font-size: 1.2rem;
-    opacity: 0.95;
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-}
-
-.category-stats {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-top: 1.5rem;
-}
-
-.category-stats .stat-item {
-    text-align: center;
-}
-
-.category-stats .stat-number {
-    display: block;
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-}
-
-.category-stats .stat-label {
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-/* Breadcrumb */
-.hub-breadcrumb {
-    margin-bottom: 1.5rem;
-    padding: 1rem;
+/* Título principal verde */
+.hub-category-title-section {
     background: #f8f9fa;
+    padding: 40px 0 20px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.hub-category-main-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-align: left;
+}
+
+/* Layout de contenido - 3 columnas */
+.hub-category-content-wrapper {
+    display: grid;
+    grid-template-columns: 160px 1fr 300px;
+    gap: 30px;
+    padding: 30px 0;
+    min-height: 600px;
+}
+
+/* Columna izquierda */
+.hub-left-column {
+    background: #fff;
+    padding: 0;
+}
+
+/* Sección "Con el apoyo de" */
+.hub-sponsor-section {
+    background: white;
     border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.hub-breadcrumb nav {
+.sponsor-title {
+    background: #f8f9fa;
+    margin: 0;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #eee;
+}
+
+/* Imagen publicitaria */
+.sponsor-image-container {
+    padding: 15px;
+}
+
+.sponsor-ad-image {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+.sponsor-ad-placeholder {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+    text-align: center;
+}
+
+.sponsor-ad-placeholder .ad-content {
+    padding: 15px;
+}
+
+.sponsor-ad-placeholder .ad-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.sponsor-ad-placeholder h4 {
+    margin: 8px 0;
     font-size: 0.9rem;
+    color: #333;
 }
 
-.hub-breadcrumb a {
-    color: #0066cc;
+.sponsor-ad-placeholder p {
+    margin: 0 0 8px 0;
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.sponsor-ad-placeholder small {
+    color: #999;
+    font-size: 0.7rem;
+    font-style: italic;
+}
+
+/* Link "Sobre este contenido" */
+.hub-sobre-contenido-link {
+    padding: 10px 15px;
+    border-top: 1px solid #eee;
+    position: relative;
+}
+
+.sobre-contenido-trigger {
+    color: #666;
     text-decoration: none;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.3s ease;
 }
 
-.hub-breadcrumb a:hover {
+.sobre-contenido-trigger:hover {
+    color: #2ecc71;
     text-decoration: underline;
 }
 
-.hub-breadcrumb .separator {
-    margin: 0 0.5rem;
-    color: #666;
-}
-
-.hub-breadcrumb .current {
-    color: #333;
-    font-weight: 600;
-}
-
-/* Herramientas */
-.hub-tools {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-}
-
-.tools-left .results-count {
-    font-weight: 600;
-    color: #333;
-}
-
-.tools-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.sort-dropdown select {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background: white;
+.sobre-contenido-trigger::before {
+    content: "ℹ️";
+    margin-right: 6px;
     font-size: 0.9rem;
 }
 
-.view-toggle {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.view-btn {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    background: white;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
-
-.view-btn.active {
-    background: #f0f0f0;
-    border-color: #ccc;
-}
-
-.view-btn:hover {
-    background: #f5f5f5;
-}
-
-/* Publicidad */
-.category-advertisement {
-    margin: 2rem 0;
-}
-
-.ad-container {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 2px dashed #ddd;
-    position: relative;
-    text-align: center;
-}
-
-.ad-container.small {
-    margin: 1rem 0;
-    max-width: 350px;
-}
-
-.ad-label {
-    position: absolute;
-    top: -10px;
-    left: 20px;
-    background: #fff;
-    padding: 0 10px;
-    font-size: 0.8rem;
-    color: #666;
-    text-transform: uppercase;
-}
-
-.ad-banner-placeholder {
-    min-height: 120px;
-    border-radius: 8px;
+/* Popup styles */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.popup-contenido {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
     position: relative;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
 }
 
-.ad-banner-placeholder.small {
-    min-height: 80px;
-}
-
-.ad-content {
-    text-align: center;
-}
-
-.ad-content .ad-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-.ad-content h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
-}
-
-.ad-content p {
-    margin: 0 0 0.5rem 0;
-    color: #666;
-}
-
-.ad-content small {
+.popup-cerrar {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
     color: #999;
-    font-size: 0.8rem;
-}
-
-/* Grid de hubs */
-.hubs-container.grid-view {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.hubs-container.list-view {
+    line-height: 1;
+    width: 30px;
+    height: 30px;
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
 }
 
-.hubs-container.list-view .hub-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 1.5rem;
+.popup-cerrar:hover {
+    color: #333;
+    background: #f5f5f5;
+}
+
+.popup-contenido h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 1.4rem;
+    font-weight: 600;
+    padding-right: 40px;
+}
+
+.popup-texto {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* Columna central */
+.hub-center-column {
+    background: #fff;
+    width: 100%;
     max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-.hubs-container.list-view .hub-image {
-    flex: 0 0 200px;
+/* Columna derecha */
+.hub-right-column {
+    background: #fff;
 }
 
-.hubs-container.list-view .hub-content {
-    flex: 1;
-}
-
-/* Tarjetas de hub */
-.hub-card {
+/* Primera publicación destacada */
+.hub-featured-first-post {
+    display: flex;
+    gap: 25px;
+    padding: 30px;
     background: white;
     border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    border: 1px solid #eee;
-    position: relative;
-}
-
-.hub-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.hub-image {
-    position: relative;
-    overflow: hidden;
-}
-
-.hub-thumb {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border: 2px solid #2ecc71;
+    margin-bottom: 40px;
     width: 100%;
-    height: 220px;
+    box-sizing: border-box;
+}
+
+.hub-first-image {
+    flex: 0 0 300px;
+    max-width: 300px;
+}
+
+.hub-first-thumb {
+    width: 100%;
+    height: 200px;
     object-fit: cover;
+    border-radius: 12px;
+    display: block;
     transition: transform 0.3s ease;
 }
 
-.hub-card:hover .hub-thumb {
-    transform: scale(1.05);
+.hub-featured-first-post:hover .hub-first-thumb {
+    transform: scale(1.02);
 }
 
-.hub-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    color: white;
-    padding: 0.5rem;
-    border-radius: 50%;
-    font-size: 1.2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+.hub-first-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
 }
 
-.hub-content {
-    padding: 1.5rem;
-}
-
-.hub-volanta {
-    background: rgba(255,255,255,0.9);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    display: inline-block;
-    font-size: 0.8rem;
+.hub-first-title {
+    margin: 0;
+    font-size: 1.6rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1rem;
+    line-height: 1.3;
 }
 
-.hub-title {
-    margin: 0 0 1rem 0;
-    font-size: 1.3rem;
-    line-height: 1.4;
-}
-
-.hub-title a {
+.hub-first-title a {
     color: #333;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-.hub-title a:hover {
-    color: #0066cc;
+.hub-first-title a:hover {
+    color: #2ecc71;
 }
 
-.hub-excerpt {
-    color: #666;
+.hub-first-excerpt {
+    color: #555;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
 }
 
-.hub-meta {
-    border-top: 1px solid #eee;
-    padding-top: 1rem;
-    margin-bottom: 1rem;
+/* Grid de publicaciones - 3 columnas como en archive-opinion */
+.hub-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 40px;
 }
 
-.meta-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    font-size: 0.9rem;
-}
-
-.meta-row span {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.meta-row a {
-    color: #666;
-    text-decoration: none;
-}
-
-.meta-row a:hover {
-    color: #0066cc;
-}
-
-.hub-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.tag-link {
-    padding: 0.25rem 0.75rem;
-    border-radius: 15px;
-    font-size: 0.75rem;
-    text-decoration: none;
-    font-weight: 600;
+/* Cards del grid */
+.hub-grid-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
     transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    position: relative;
+    cursor: pointer;
 }
 
-.tag-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.read-more-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.read-more-btn:hover {
+.hub-grid-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-/* Publicidad inline */
-.inline-ad {
-    grid-column: 1 / -1;
-    margin: 1rem 0;
+.hub-grid-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
 }
 
-/* Sin resultados */
+.hub-grid-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.hub-grid-item:hover .hub-grid-thumb {
+    transform: scale(1.05);
+}
+
+.hub-grid-content {
+    padding: 15px;
+}
+
+.hub-grid-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.hub-grid-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.hub-grid-title a:hover {
+    color: #2ecc71;
+}
+
+/* Enlace overlay para las cards del grid */
+.hub-grid-link-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    z-index: 2;
+}
+
+/* Columna derecha - Sidebar del tema como en archive-opinion */
+.hub-right-column {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    box-sizing: border-box;
+    width: 300px;
+    max-width: 300px;
+    min-width: 300px;
+}
+
+/* Neutralizar estilos del tema en la sidebar */
+.hub-right-column .mh-sidebar {
+    width: 100% !important;
+    float: none !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    clear: none !important;
+    position: static !important;
+}
+
+/* Estilos para widgets en la sidebar */
+.hub-right-column .widget {
+    margin-bottom: 25px !important;
+    background: #fff !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+.hub-right-column .widget:last-child {
+    margin-bottom: 0 !important;
+}
+
+.hub-right-column .widget-title {
+    margin: 0 0 15px 0 !important;
+    font-size: 1.1rem !important;
+    color: #2ecc71 !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #2ecc71 !important;
+    padding-bottom: 8px !important;
+}
+
+/* Mensaje cuando no hay publicaciones */
 .no-hubs-found {
-    grid-column: 1 / -1;
     text-align: center;
-    padding: 4rem 2rem;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
-    border-radius: 20px;
-    border: 2px dashed #ddd;
-}
-
-.no-content-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
+    padding: 60px 20px;
+    color: #666;
 }
 
 .no-hubs-found h3 {
-    margin-bottom: 1rem;
     color: #333;
-}
-
-.no-hubs-found p {
-    color: #666;
-    margin-bottom: 2rem;
-}
-
-.btn-primary {
-    display: inline-block;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    margin-bottom: 15px;
 }
 
 /* Paginación */
 .hubs-pagination {
+    margin-top: 50px;
     text-align: center;
-    margin-top: 3rem;
 }
 
 .hubs-pagination .nav-links {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
+    gap: 10px;
     flex-wrap: wrap;
 }
 
 .hubs-pagination a,
-.hubs-pagination span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    text-decoration: none;
-    color: #666;
-    transition: all 0.3s ease;
-    min-width: 44px;
-    justify-content: center;
-}
-
-.hubs-pagination a:hover,
 .hubs-pagination .current {
-    background: #0066cc;
-    color: white;
-    border-color: #0066cc;
-}
-
-.hubs-pagination svg {
-    width: 14px;
-    height: 14px;
-}
-
-/* Sidebar */
-.widget {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    border: 1px solid #eee;
-}
-
-.widget-title {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: #333;
-    border-bottom: 2px solid #0066cc;
-    padding-bottom: 0.5rem;
-}
-
-/* Widget de categorías */
-.hub-categories-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.hub-categories-list li {
-    margin-bottom: 0.5rem;
-}
-
-.hub-categories-list a {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    border-radius: 10px;
+    padding: 10px 15px;
+    border-radius: 6px;
     text-decoration: none;
-    color: #666;
     transition: all 0.3s ease;
-    border: 1px solid transparent;
 }
 
-.hub-categories-list a:hover {
-    background: #f8f9fa;
-    border-color: #ddd;
+.hubs-pagination a {
+    background: white;
+    color: #2ecc71;
+    border: 1px solid #2ecc71;
 }
 
-.hub-categories-list .current-category a {
-    border-color: transparent;
+.hubs-pagination a:hover {
+    background: #2ecc71;
+    color: white;
 }
 
-.cat-icon {
-    font-size: 1.2rem;
-    width: 24px;
-    text-align: center;
-}
-
-.cat-name {
-    flex: 1;
-    font-weight: 500;
-}
-
-.cat-count {
-    background: #f0f0f0;
-    color: #666;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-/* Widget de hubs recientes */
-.recent-hubs-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.recent-hub-item {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-}
-
-.recent-hub-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.recent-hub-thumb {
-    flex: 0 0 60px;
-}
-
-.recent-hub-thumb img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.recent-hub-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.recent-hub-title {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.9rem;
-    line-height: 1.3;
-}
-
-.recent-hub-title a {
-    color: #333;
-    text-decoration: none;
-}
-
-.recent-hub-title a:hover {
-    color: #0066cc;
-}
-
-.recent-hub-date {
-    font-size: 0.8rem;
-    color: #888;
-}
-
-/* Widget de estadísticas */
-.stats-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.stats-grid .stat-item {
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-    position: relative;
-    padding-left: 1.5rem;
-}
-
-.stats-grid .stat-number {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-}
-
-.stats-grid .stat-label {
-    font-size: 0.8rem;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.hubs-pagination .current {
+    background: #2ecc71;
+    color: white;
+    border: 1px solid #2ecc71;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .hub-category-wrapper {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .hub-sidebar {
-        flex: none;
-    }
-    
-    .hubs-container.grid-view {
+    .hub-category-content-wrapper {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
     
-    .hub-tools {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
+    .hub-left-column {
+        order: 3;
     }
     
-    .tools-right {
-        justify-content: space-between;
+    .hub-center-column {
+        order: 1;
     }
     
-    .category-title {
+    .hub-right-column {
+        order: 2;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+    }
+    
+    .hub-category-main-title {
         font-size: 2rem;
+        text-align: center;
     }
     
-    .category-stats {
+    /* Primera publicación en mobile */
+    .hub-featured-first-post {
         flex-direction: column;
-        gap: 1rem;
+        gap: 15px;
+        padding: 20px;
     }
     
-    .meta-row {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .hub-content {
-        padding: 1rem;
-    }
-    
-    .hubs-container.list-view .hub-card {
-        flex-direction: column;
-    }
-    
-    .hubs-container.list-view .hub-image {
+    .hub-first-image {
         flex: none;
+        max-width: 100%;
+    }
+    
+    .hub-first-thumb {
+        height: 200px;
+    }
+    
+    /* Grid de publicaciones en mobile - 1 columna */
+    .hub-grid-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .hub-grid-content {
+        padding: 12px;
+    }
+    
+    .sponsor-ad-placeholder {
+        height: 150px;
     }
 }
 
 @media (max-width: 480px) {
-    .hub-category-wrapper {
-        padding: 0 0.5rem;
+    .container {
+        padding: 0 15px;
     }
     
-    .category-hero {
-        padding: 0 1rem;
+    .hub-category-content-wrapper {
+        padding: 20px 0;
     }
     
-    .hub-content {
-        padding: 0.75rem;
+    .hub-featured-first-post {
+        padding: 15px;
     }
     
-    .hubs-pagination .nav-links {
-        gap: 0.25rem;
+    .hub-first-title {
+        font-size: 1.3rem;
     }
     
-    .hubs-pagination a,
-    .hubs-pagination span {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.9rem;
+    .hub-grid-content {
+        padding: 12px;
+    }
+    
+    .hub-grid-title {
+        font-size: 1rem;
     }
 }
 </style>
 
 <script>
-// JavaScript para funcionalidades interactivas
+// JavaScript para manejar el popup
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // Toggle vista grid/list
-    const viewButtons = document.querySelectorAll('.view-btn');
-    const hubsContainer = document.getElementById('hubs-container');
-    
-    viewButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const view = this.dataset.view;
-            
-            // Update active button
-            viewButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Update container class
-            hubsContainer.className = `hubs-container ${view}-view`;
-            
-            // Guardar preferencia en localStorage
-            localStorage.setItem('hubsViewPreference', view);
-        });
+    // Abrir popup
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('sobre-contenido-trigger')) {
+            e.preventDefault();
+            const popup = e.target.parentNode.querySelector('.popup-overlay');
+            if (popup) {
+                popup.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        // Cerrar popup
+        if (e.target.classList.contains('popup-cerrar') || e.target.classList.contains('popup-overlay')) {
+            closePopup();
+        }
     });
     
-    // Restaurar preferencia de vista
-    const savedView = localStorage.getItem('hubsViewPreference');
-    if (savedView) {
-        const targetBtn = document.querySelector(`[data-view="${savedView}"]`);
-        if (targetBtn) {
-            targetBtn.click();
+    // Cerrar con Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode === 27) {
+            closePopup();
         }
+    });
+    
+    function closePopup() {
+        const popups = document.querySelectorAll('.popup-overlay');
+        popups.forEach(popup => {
+            popup.style.display = 'none';
+        });
+        document.body.style.overflow = '';
     }
     
-});
-
-// Función para ordenar hubs
-function sortHubs(sortBy) {
-    const container = document.getElementById('hubs-container');
-    const cards = Array.from(container.querySelectorAll('.hub-card'));
-    
-    cards.sort((a, b) => {
-        switch(sortBy) {
-            case 'date-desc':
-                return new Date(b.dataset.date) - new Date(a.dataset.date);
-            case 'date-asc':
-                return new Date(a.dataset.date) - new Date(b.dataset.date);
-            case 'title-asc':
-                return a.dataset.title.localeCompare(b.dataset.title);
-            case 'views-desc':
-                // Implementar cuando tengas datos de vistas
-                return 0;
-            default:
-                return 0;
-        }
-    });
-    
-    // Reordenar elementos en el DOM
-    cards.forEach(card => {
-        if (!card.classList.contains('inline-ad')) {
-            container.appendChild(card);
-        }
-    });
-}
-
-// Smooth scroll para anclas
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+    // Prevenir que el clic en el contenido del popup lo cierre
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('popup-contenido') || e.target.closest('.popup-contenido')) {
+            e.stopPropagation();
         }
     });
 });
