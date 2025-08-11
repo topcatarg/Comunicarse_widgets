@@ -22,24 +22,31 @@ function get_category_config($category_slug) {
         'hub-category-ddhh-y-empresa' => array(
             'title' => 'DD.HH. y Empresa',
             'popup_titulo' => 'Sobre DD.HH. y Empresa',
-            'popup_contenido' => 'Este hub está dedicado a explorar la intersección entre los derechos humanos y el mundo empresarial. Aquí encontrarás análisis, casos de estudio y reflexiones sobre cómo las empresas pueden contribuir al respeto y promoción de los derechos humanos en sus operaciones.',
             'ad_image' => get_template_directory_uri() . '/assets/ads/logo-sancorseguros.jpg',
             'ad_alt' => 'Publicidad DD.HH. y Empresa'
         ),
         'hub-category-cop-cambio-climatico' => array(
             'title' => 'COP y Cambio Climático',
             'popup_titulo' => 'Sobre COP y Cambio Climático',
-            'popup_contenido' => 'Seguimiento y análisis de las Conferencias de las Partes (COP) sobre cambio climático y su impacto en políticas empresariales y sostenibilidad global.',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/cop-clima-banner.jpg',
+            'ad_image' => get_template_directory_uri() . '/assets/ads/logo-kpmg.jpg',
             'ad_alt' => 'Publicidad COP y Cambio Climático'
         ),
         'hub-category-economia-regenerativa' => array(
             'title' => 'Economía Regenerativa',
             'popup_titulo' => 'Sobre Economía Regenerativa',
-            'popup_contenido' => 'Exploramos modelos económicos que van más allá de la sostenibilidad para crear un impacto positivo neto en el planeta y la sociedad.',
-            'ad_image' => get_template_directory_uri() . '/assets/ads/economia-regenerativa-banner.jpg',
+            'ad_image' => get_template_directory_uri() . '/assets/ads/logo-syngenta.jpg',
             'ad_alt' => 'Publicidad Economía Regenerativa'
-        )
+        ),
+        'hub-category-negocios-inclusivos-y-sociales' => array(
+            'title' => 'Negocios Inclusivos y Sociales',
+            'popup_titulo' => 'Sobre Negocios Inclusivos y Sociales',
+        ),
+                'hub-category-packaging-sustentable' => array(
+            'title' => 'Packaging Sustentable',
+            'popup_titulo' => 'Sobre Packaging Sustentable',
+        ),
+        
+
     );
     
     // Obtener configuración específica o usar valores por defecto
@@ -61,6 +68,10 @@ function get_category_config($category_slug) {
 
 // Obtener configuración para esta categoría
 $config = get_category_config($category_slug);
+
+// Verificar si hay imagen publicitaria para mostrar la columna izquierda
+$image_path = str_replace(get_template_directory_uri(), get_template_directory(), $config['ad_image']);
+$show_left_sidebar = file_exists($image_path);
 ?>
 
 <div class="hub-category-page-wrapper">
@@ -76,57 +87,58 @@ $config = get_category_config($category_slug);
 
     <!-- Layout principal -->
     <div class="container">
-        <div class="hub-category-content-wrapper">
+        <div class="hub-category-content-wrapper <?php echo $show_left_sidebar ? 'with-left-sidebar' : 'no-left-sidebar'; ?>">
             
-            <!-- Columna izquierda: "Con el apoyo de" y publicidad -->
-            <div class="hub-left-column">
-                
-                <!-- Sección "Con el apoyo de" -->
-                <div class="hub-sponsor-section">
-                    <h3 class="sponsor-title">Con el apoyo de</h3>
+            <?php if ($show_left_sidebar) : ?>
+                <!-- Columna izquierda: "Con el apoyo de" y publicidad -->
+                <div class="hub-left-column">
                     
-                    <!-- Imagen publicitaria -->
-                    <div class="sponsor-image-container">
-                        <?php 
-                        // Verificar si existe la imagen específica
-                        $image_path = str_replace(get_template_directory_uri(), get_template_directory(), $config['ad_image']);
-                        if (file_exists($image_path)) : 
-                        ?>
-                            <!-- Imagen real -->
-                            <img src="<?php echo esc_url($config['ad_image']); ?>" 
-                                 alt="<?php echo esc_attr($config['ad_alt']); ?>" 
-                                 class="sponsor-ad-image" />
-                        <?php else : ?>
-                            <!-- Placeholder cuando no hay imagen -->
-                            <div class="sponsor-ad-placeholder" style="background: linear-gradient(45deg, <?php echo $config['color_primary']; ?>20, <?php echo $config['color_secondary']; ?>20);">
-                                <div class="ad-content">
-                                    <div class="ad-icon"><?php echo $config['icon']; ?></div>
-                                    <h4>Publicidad <?php echo esc_html($config['title']); ?></h4>
-                                    <p>Espacio publicitario vertical<br>300x250 px</p>
-                                    <small>Imagen: <?php echo basename($config['ad_image']); ?></small>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <!-- Link "Sobre este contenido" con popup -->
-                    <div class="hub-sobre-contenido-link">
-                        <a href="#" class="sobre-contenido-trigger">Sobre este contenido</a>
+                    <!-- Sección "Con el apoyo de" -->
+                    <div class="hub-sponsor-section">
+                        <h3 class="sponsor-title">Con el apoyo de</h3>
                         
-                        <!-- Popup overlay -->
-                        <div class="popup-overlay" style="display: none;">
-                            <div class="popup-contenido">
-                                <span class="popup-cerrar">&times;</span>
-                                <h3><?php echo esc_html($config['popup_titulo']); ?></h3>
-                                <div class="popup-texto">
-                                    <?php echo wp_kses_post($config['popup_contenido']); ?>
+                        <!-- Imagen publicitaria -->
+                        <div class="sponsor-image-container">
+                            <?php 
+                            // Verificar si existe la imagen específica
+                            if (file_exists($image_path)) : 
+                            ?>
+                                <!-- Imagen real -->
+                                <img src="<?php echo esc_url($config['ad_image']); ?>" 
+                                     alt="<?php echo esc_attr($config['ad_alt']); ?>" 
+                                     class="sponsor-ad-image" />
+                            <?php else : ?>
+                                <!-- Placeholder cuando no hay imagen -->
+                                <div class="sponsor-ad-placeholder" style="background: linear-gradient(45deg, <?php echo $config['color_primary']; ?>20, <?php echo $config['color_secondary']; ?>20);">
+                                    <div class="ad-content">
+                                        <div class="ad-icon"><?php echo $config['icon']; ?></div>
+                                        <h4>Publicidad <?php echo esc_html($config['title']); ?></h4>
+                                        <p>Espacio publicitario vertical<br>300x250 px</p>
+                                        <small>Imagen: <?php echo basename($config['ad_image']); ?></small>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Link "Sobre este contenido" con popup -->
+                        <div class="hub-sobre-contenido-link">
+                            <a href="#" class="sobre-contenido-trigger">Sobre este contenido</a>
+                            
+                            <!-- Popup overlay -->
+                            <div class="popup-overlay" style="display: none;">
+                                <div class="popup-contenido">
+                                    <span class="popup-cerrar">&times;</span>
+                                    <h3><?php echo esc_html($config['popup_titulo']); ?></h3>
+                                    <div class="popup-texto">
+                                        <?php echo wp_kses_post($config['popup_contenido']); ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
-                
-            </div>
+            <?php endif; ?>
 
                 <!-- Columna central: Lista de publicaciones -->
                 <div class="hub-center-column">
@@ -266,13 +278,22 @@ $config = get_category_config($category_slug);
     text-align: left;
 }
 
-/* Layout de contenido - 3 columnas */
+/* Layout de contenido - Base */
 .hub-category-content-wrapper {
     display: grid;
-    grid-template-columns: 160px 1fr 300px;
     gap: 30px;
     padding: 30px 0;
     min-height: 600px;
+}
+
+/* Layout CON sidebar izquierda */
+.hub-category-content-wrapper.with-left-sidebar {
+    grid-template-columns: 160px 1fr 300px;
+}
+
+/* Layout SIN sidebar izquierda */
+.hub-category-content-wrapper.no-left-sidebar {
+    grid-template-columns: 1fr 300px;
 }
 
 /* Columna izquierda */
@@ -693,7 +714,8 @@ $config = get_category_config($category_slug);
 
 /* Responsive */
 @media (max-width: 768px) {
-    .hub-category-content-wrapper {
+    .hub-category-content-wrapper.with-left-sidebar,
+    .hub-category-content-wrapper.no-left-sidebar {
         grid-template-columns: 1fr;
         gap: 20px;
     }
